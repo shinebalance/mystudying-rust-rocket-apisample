@@ -20,6 +20,9 @@ use diesel::SqliteConnection;//まぁわかる
 
 use task::{Task, Todo};//同じフォルダから
 
+use rocket_contrib::json::Json;//pythonで言うfrom hoge import hoge as hogeかな
+
+
 // 何か元コードには色々書いてるんだよな
 // 記法としては関数型？のマクロ呼び出しで、diesel_migrationsマクロの中にあるらしい
 // DRFのmakemigrationみたいなもの？
@@ -36,7 +39,6 @@ pub struct DbConn(SqliteConnection);
 struct Context<'a, 'b>{ 
     msg: Option<(&'a str, &'b str)>, tasks: Vec<Task>
 }
-
 // implってなんだ？→メソッドの定義やね
 impl<'a, 'b> Context<'a, 'b> {
     pub fn err(conn: &DbConn, msg: &'a str) -> Context<'static, 'a> {
@@ -44,7 +46,6 @@ impl<'a, 'b> Context<'a, 'b> {
             msg: Some(("error", msg)),
             tasks: Task::all(conn)}
     }
-
     pub fn raw(conn: &DbConn, msg: Option<(&'a str, &'b str)>) -> Context<'a, 'b> {
         Context{msg: msg, tasks: Task::all(conn)}
     }
@@ -94,6 +95,14 @@ fn index(msg: Option<FlashMessage>, conn: DbConn) -> Template {
     })
 }
 
+// apiルートを足して、jsonのレスポンスを返すパスを追加
+# [get("/api")]
+fn api(conn: DbConn) -> Json<Vec<Task>> {
+    Json(
+        Task::all(&conn)
+    )
+}
+
 // DBマイグレーション？
 fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
     let conn = DbConn::get_one(&rocket).expect("database connection");
@@ -114,6 +123,7 @@ fn rocket() -> Rocket {
     .attach(AdHoc::on_attach("DatabaseMigrations", run_db_migrations))
     .mount("/", StaticFiles::from("static/"))
     .mount("/", routes![index])
+    .mount("/", routes![api])
     .mount("/todo", routes![new, toggle, delete]) //マウント…？
     .attach(Template::fairing())
 }
