@@ -113,6 +113,14 @@ fn api_records(conn: DbConn) -> Json<Vec<Record>> {
     )
 }
 
+// taskの複製
+# [get("/api/v1/records/<id>")]
+fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Json<Vec<Record>> {
+    Json(
+        Record::retrieve_by_id(id, &conn).unwrap()
+    )
+}
+
 // DBマイグレーション？
 fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
     let conn = DbConn::get_one(&rocket).expect("database connection");
@@ -135,6 +143,7 @@ fn rocket() -> Rocket {
     .mount("/", routes![index])
     .mount("/", routes![api_tasks])
     .mount("/", routes![api_records])
+    .mount("/", routes![api_records_retrieve_by_id])
     .mount("/todo", routes![new, toggle, delete]) //マウント…？
     .attach(Template::fairing())
 }

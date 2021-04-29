@@ -43,12 +43,13 @@ impl Record {
         all_records.order(records::id.desc()).load::<Record>(conn).unwrap()
     }
     // idを指定してにSELECT
-    pub fn retrieve_by_id(id: i32, conn: &SqliteConnection) -> Option<Record> {
+    pub fn retrieve_by_id(id: i32, conn: &SqliteConnection) -> Option<Vec<Record>> {
+        println!("this id is {}", id);
         let record = all_records.find(id).get_result::<Record>(conn);
         if record.is_err() {
             return None;//引っかからなければNone
         }
-        Some(record.unwrap())//recordがあれば返す
+        Some(vec![record.unwrap()])//recordがあれば返す
     }
     // INSERT処理
     pub fn insert(ffrecord: FromFormRecord, conn: &SqliteConnection) -> bool {
