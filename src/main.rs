@@ -106,7 +106,7 @@ fn api_tasks(conn: DbConn) -> Json<Vec<Task>> {
 }
 
 // taskの複製
-# [get("/api/v1/records")]
+# [get("/")]
 fn api_records(conn: DbConn) -> Json<Vec<Record>> {
     Json(
         Record::all(&conn)
@@ -114,11 +114,14 @@ fn api_records(conn: DbConn) -> Json<Vec<Record>> {
 }
 
 // taskの複製
-# [get("/api/v1/records/<id>")]
-fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Json<Vec<Record>> {
-    Json(
-        Record::retrieve_by_id(id, &conn).unwrap()
-    )
+# [get("/<id>")]
+fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Option<Json<Vec<Record>>> {
+    // match
+    let record_retrieve = Record::retrieve_by_id(id, &conn);
+    match record_retrieve {
+        Some(record_retrieve) => Some(Json(record_retrieve)),
+        None => None
+    }
 }
 
 // DBマイグレーション？
@@ -133,7 +136,6 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
     }
 }
 
-
 // main実行した時に走るやつ？
 fn rocket() -> Rocket {
     rocket::ignite()
@@ -142,8 +144,9 @@ fn rocket() -> Rocket {
     .mount("/", StaticFiles::from("static/"))
     .mount("/", routes![index])
     .mount("/", routes![api_tasks])
-    .mount("/", routes![api_records])
-    .mount("/", routes![api_records_retrieve_by_id])
+    // .mount("/", routes![api_records])
+    // .mount("/", routes![api_records_retrieve_by_id])
+    .mount("/api/v1/records", routes![api_records, api_records_retrieve_by_id])
     .mount("/todo", routes![new, toggle, delete]) //マウント…？
     .attach(Template::fairing())
 }
