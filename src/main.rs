@@ -123,13 +123,18 @@ fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Option<Json<Vec<Record>>
         None => None
     }
 }
+// TODO：CREATE処理：api/v1/records/
+
+
 // DELETE処理：api/v1/records/<id>
 # [delete("/<id>")]
-fn api_records_detele_by_id(id: i32, conn: DbConn) -> Result<Flash<Redirect>, Template> {
+fn api_records_detele_by_id(id: i32, conn: DbConn) -> Result<Redirect, ()> {
     if Record::delete_with_id(id, &conn) {
-        Ok(Flash::success(Redirect::to("/"), "Todo was deleted."))
+        Ok(Redirect::to("/api/v1/records"))
     } else {
-        Err(Template::render("index", &Context::err(&conn, "Couldn't delete task.")))
+        // Err(Redirect::to("/api/v1/records"))
+        // TODO:エラーレイズ機能の実装
+        Err(error!("Failed to delete a record , id: {}", id))
     }
 }
 
