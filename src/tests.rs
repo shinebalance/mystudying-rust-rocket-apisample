@@ -152,13 +152,20 @@ fn test_bad_form_submissions() {
 #[test]
 fn test_get_record() {
     run_test!(|client, conn| {
-        // Get the tasks before making changes.
+        // レコード数のチェック
         let init_records = Record::all(&conn);
-
         // Getできることの確認
         let _req = client.get("/api/v1/records");
-        // panic!("うほうほ")
-
+        // id:1を使って単体レコードの取得テスト
+        // TODO:動的にidを取る方法があれば別途
+        let check_id = 1;
+        let retrieved_records = Record::retrieve_by_id(check_id, &conn).unwrap();
+        if retrieved_records.len() != 0 {
+            // get処理
+            let url = format!("/api/v1/records/{}", check_id);
+            client.get(url);
+            assert_eq!(retrieved_records.len(), 1);
+        }
         // レコード数の存在確認(今の時点であまり意味はない)
         let new_records = Record::all(&conn);
         assert_eq!(new_records.len(), init_records.len());
