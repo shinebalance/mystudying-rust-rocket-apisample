@@ -8,6 +8,7 @@
 #[macro_use] extern crate rocket_contrib;
 
 mod task;
+mod record;//add
 #[cfg(test)] mod tests;//testsモジュール？
 
 
@@ -19,6 +20,7 @@ use rocket_contrib::{templates::Template, serve::StaticFiles};//静的ファイ�
 use diesel::SqliteConnection;//まぁわかる
 
 use task::{Task, Todo};//同じフォルダから
+use record::{Record};//importからuse
 
 use rocket_contrib::json::Json;//pythonで言うfrom hoge import hoge as hogeかな
 
@@ -96,10 +98,18 @@ fn index(msg: Option<FlashMessage>, conn: DbConn) -> Template {
 }
 
 // apiルートを足して、jsonのレスポンスを返すパスを追加
-# [get("/api")]
-fn api(conn: DbConn) -> Json<Vec<Task>> {
+# [get("/api/v1/tasks")]
+fn api_tasks(conn: DbConn) -> Json<Vec<Task>> {
     Json(
         Task::all(&conn)
+    )
+}
+
+// taskの複製
+# [get("/api/v1/records")]
+fn api_records(conn: DbConn) -> Json<Vec<Record>> {
+    Json(
+        Record::all(&conn)
     )
 }
 
@@ -123,7 +133,8 @@ fn rocket() -> Rocket {
     .attach(AdHoc::on_attach("DatabaseMigrations", run_db_migrations))
     .mount("/", StaticFiles::from("static/"))
     .mount("/", routes![index])
-    .mount("/", routes![api])
+    .mount("/", routes![api_tasks])
+    .mount("/", routes![api_records])
     .mount("/todo", routes![new, toggle, delete]) //マウント…？
     .attach(Template::fairing())
 }
