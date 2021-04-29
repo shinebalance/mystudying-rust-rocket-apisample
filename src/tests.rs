@@ -1,6 +1,7 @@
 extern crate parking_lot;
 extern crate rand;
 
+use super::record::Record;//追加
 use super::task::Task;
 use self::parking_lot::Mutex;
 use self::rand::{Rng, thread_rng, distributions::Alphanumeric};
@@ -144,5 +145,23 @@ fn test_bad_form_submissions() {
         let mut cookies = res.headers().get("Set-Cookie");
         assert_eq!(res.status(), Status::UnprocessableEntity);
         assert!(!cookies.any(|value| value.contains("error")));
+    })
+}
+
+// 自分で追加
+#[test]
+fn test_get_record() {
+    run_test!(|client, conn| {
+        // Get the tasks before making changes.
+        let init_records = Record::all(&conn);
+
+        // Getできることの確認
+        let _req = client.get("/api/v1/records");
+        // panic!("うほうほ")
+
+        // レコード数の存在確認(今の時点であまり意味はない)
+        let new_records = Record::all(&conn);
+        assert_eq!(new_records.len(), init_records.len());
+
     })
 }
