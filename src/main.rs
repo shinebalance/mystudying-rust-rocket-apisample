@@ -105,15 +105,15 @@ fn api_tasks(conn: DbConn) -> Json<Vec<Task>> {
     )
 }
 
-// taskの複製
+// 以下、自作のRecordモデルに対する処理
+// GET処理：api/v1/records/
 # [get("/")]
 fn api_records(conn: DbConn) -> Json<Vec<Record>> {
     Json(
         Record::all(&conn)
     )
 }
-
-// taskの複製
+// GET処理：api/v1/records/<id>
 # [get("/<id>")]
 fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Option<Json<Vec<Record>>> {
     // match
@@ -121,6 +121,15 @@ fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Option<Json<Vec<Record>>
     match record_retrieve {
         Some(record_retrieve) => Some(Json(record_retrieve)),
         None => None
+    }
+}
+// DELETE処理：api/v1/records/<id>
+# [delete("/<id>")]
+fn api_records_detele_by_id(id: i32, conn: DbConn) -> Result<Flash<Redirect>, Template> {
+    if Record::delete_with_id(id, &conn) {
+        Ok(Flash::success(Redirect::to("/"), "Todo was deleted."))
+    } else {
+        Err(Template::render("index", &Context::err(&conn, "Couldn't delete task.")))
     }
 }
 
@@ -146,7 +155,7 @@ fn rocket() -> Rocket {
     .mount("/", routes![api_tasks])
     // .mount("/", routes![api_records])
     // .mount("/", routes![api_records_retrieve_by_id])
-    .mount("/api/v1/records", routes![api_records, api_records_retrieve_by_id])
+    .mount("/api/v1/records", routes![api_records, api_records_retrieve_by_id, api_records_detele_by_id])
     .mount("/todo", routes![new, toggle, delete]) //マウント…？
     .attach(Template::fairing())
 }
