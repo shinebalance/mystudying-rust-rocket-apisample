@@ -138,6 +138,18 @@ fn api_records_create(json_record: Json<Record>, conn: DbConn) -> Result<Redirec
     }
 }
 
+// UPDATE処理：api/v1/records/<id>
+# [put("/<id>", format = "json", data = "<json_record>")]
+fn api_records_put_by_id(json_record: Json<Record>, id: i32, conn: DbConn) -> Result<Redirect, ()> {
+    // Jsonで受け取った値を開く
+    let record = json_record.into_inner();
+    if Record::update_with_id(record, id, &conn) {
+        Ok(Redirect::to("/api/v1/records"))
+    } else {
+        Err(error!("Failed to update a record , id: {}", id))
+    }
+}
+
 // DELETE処理：api/v1/records/<id>
 # [delete("/<id>")]
 fn api_records_detele_by_id(id: i32, conn: DbConn) -> Result<Redirect, ()> {
@@ -170,7 +182,7 @@ fn rocket() -> Rocket {
     .mount("/", routes![api_tasks])
     // .mount("/", routes![api_records])
     // .mount("/", routes![api_records_retrieve_by_id])
-    .mount("/api/v1/records", routes![api_records, api_records_retrieve_by_id, api_records_detele_by_id,api_records_create])
+    .mount("/api/v1/records", routes![api_records, api_records_retrieve_by_id, api_records_detele_by_id,api_records_create, api_records_put_by_id])
     .mount("/todo", routes![new, toggle, delete]) //マウント…？
     .attach(Template::fairing())
 }

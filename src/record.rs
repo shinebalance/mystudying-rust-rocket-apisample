@@ -53,8 +53,27 @@ impl Record {
         diesel::insert_into(records::table).values(&r).execute(conn).is_ok()
     }  
     // TODO：日付で検索してIDを返すGET処理
-    // pub fn retrieve_by_id(){}
-
+    // pub fn retrieve_id_by_date(){}
+    // 
+    // UPDATE処理:idを指定して更新を行う処理
+    // 実際には指定IDのレコードを削除してから、ID指定で再度レコードを作る処理
+    pub fn update_with_id(ffrecord: Record, id: i32, conn: &SqliteConnection) -> bool {
+        // 対象id(この時点で所有権はtarget_idに移動？)
+        let target_id = id;
+        // 指定idのレコードの存在確認
+        let _get_res = Record::retrieve_by_id(target_id, conn);
+        // レコードの削除
+        let _delete_res = Record::delete_with_id(target_id, conn);
+        // 新しいレコードの挿入
+        let r = Record {
+            id: Some(target_id),
+            wakeupdatetime: ffrecord.wakeupdatetime,
+            condition: ffrecord.condition,
+            description: ffrecord.description,
+            isperiod: ffrecord.isperiod
+            };
+        diesel::insert_into(records::table).values(&r).execute(conn).is_ok()
+    }
     // DELETE処理(1):id指定
     pub fn delete_with_id(id: i32, conn: &SqliteConnection) -> bool {
         diesel::delete(all_records.find(id)).execute(conn).is_ok()
