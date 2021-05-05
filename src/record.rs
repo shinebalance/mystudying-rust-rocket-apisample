@@ -62,8 +62,16 @@ impl Record {
         let target_id = id;
         // 指定idのレコードの存在確認
         let _get_res = Record::retrieve_by_id(target_id, conn);
+        // --エラーチェック,TODO:ましなやり方を探す
+        if _get_res.is_none(){
+            return false;
+        }
         // レコードの削除
         let _delete_res = Record::delete_with_id(target_id, conn);
+        // --エラーチェック,TODO:ましなやり方を探す
+        if _delete_res != true {
+            return false;
+        }
         // 新しいレコードの挿入
         let r = Record {
             id: Some(target_id),
