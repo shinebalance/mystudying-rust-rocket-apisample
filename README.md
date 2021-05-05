@@ -23,6 +23,7 @@ curl http://localhost:8000/api/v1/records
 # UPDATE
 
 # DELETE
+curl -i -X DELETE  http://localhost:8000/api/v1/records/5
 
 
 ```
