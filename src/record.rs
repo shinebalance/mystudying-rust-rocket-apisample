@@ -17,19 +17,8 @@ mod schema {
 use self::schema::records;
 use self::schema::records::dsl::{records as all_records};
 
-
-// DRFで言うForm？
-// #[derive(FromForm)]
-// pub struct FromFormRecord {
-//     pub wakeupdatetime: String,
-//     pub condition: Option<i32>,
-//     pub description: String,
-//     pub isperiod: bool
-// }
-
 // DBへのCRUD処理を行う構造体の定義
 // TODO:Repositoryに移行して、別にEntity構造体を作りたい
-// #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Clone)]
 pub struct Record {
     pub id: Option<i32>,
