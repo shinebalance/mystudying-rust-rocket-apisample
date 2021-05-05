@@ -148,7 +148,7 @@ fn test_bad_form_submissions() {
     })
 }
 
-// 自分で追加
+// 以降、Record処理用に自分で追加
 #[test]
 fn test_get_record() {
     run_test!(|client, conn| {
@@ -169,6 +169,49 @@ fn test_get_record() {
         // レコード数の存在確認(今の時点であまり意味はない)
         let new_records = Record::all(&conn);
         assert_eq!(new_records.len(), init_records.len());
+
+    })
+}
+
+#[test]
+fn test_create_record() {
+    run_test!(|client, conn| {
+        // レコード数のチェック
+        let init_records = Record::all(&conn);
+        // パラメータ
+        let param_1 = "2021-05-05 07:00:00";
+        let param_2 = "3";
+        let param_3 = "created by test code";
+        let param_4 = false;
+        // let mut params_map = HashMap::new();
+        // params_map.insert("wakeupdatetime", param_1);
+        // params_map.insert("condition", param_2);
+        // params_map.insert("description", param_3);
+        // params_map.insert("isperiod", param_4);
+        let json_params = format!(
+            r#"{{
+                "wakeupdatetime": {},
+                "condition": {}
+                "description": {}
+                "isperiod": {}
+            }}"#, param_1, param_2, param_3, param_4
+        );
+        // let json_params = json!(
+        //     {
+        //         "wakeupdatetime": "2021-05-05 07:00:00",
+        //         "condition": "3",
+        //         "description": "created by test code",
+        //         "isperiod": false
+        //     });
+        // let body_params = serde_json::to_value(&json_params);
+        // レコード作成
+        let _req = client.post("/api/v1/records")
+        .header(ContentType::JSON)
+        .body(json_params);
+        // .body(json_params);
+        // レコード数でチェック
+        let now_records = Record::all(&conn);
+        assert_eq!(now_records.len(), init_records.len());
 
     })
 }
