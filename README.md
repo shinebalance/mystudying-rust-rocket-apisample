@@ -18,9 +18,10 @@ cargo test
 curl -i -H "Content-Type: application/json" -X POST -d '{"wakeupdatetime":"2021-05-05 07:00:00","condition":5,"description":"POSTdemo","isperiod":false}' http://localhost:8000/api/v1/records
 
 # GET
-curl http://localhost:8000/api/v1/records 
+curl http://localhost:8000/api/v1/records
 
 # UPDATE
+curl -i -H "Content-Type: application/json" -X PUT -d '{"wakeupdatetime":"2021-05-05 17:00:00","condition":5,"description":"UPDATED demo","isperiod":false}' http://localhost:8000/api/v1/records/4
 
 # DELETE
 curl -i -X DELETE  http://localhost:8000/api/v1/records/5
