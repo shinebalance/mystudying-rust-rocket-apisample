@@ -20,7 +20,7 @@ use rocket_contrib::{templates::Template, serve::StaticFiles};//静的ファイ�
 use diesel::SqliteConnection;//まぁわかる
 
 use task::{Task, Todo};//同じフォルダから
-use record::{Record};//importからuse
+use record::{Record,FromFormRecord};//importからuse
 
 use rocket_contrib::json::Json;//pythonで言うfrom hoge import hoge as hogeかな
 
@@ -123,8 +123,21 @@ fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Option<Json<Vec<Record>>
         None => None
     }
 }
-// TODO：CREATE処理：api/v1/records/
 
+// TODO：CREATE処理：api/v1/records/
+# [post("/", format = "json", data = "<recieced>")]
+fn api_records_create(recieced: Json<Record>, conn: DbConn) -> Flash<Redirect> {
+    let record = recieced.into_inner();//受け取ったrecord_formの中身を渡していると思う
+    // 入力が空の場合
+    if record.description.is_empty() {
+        Flash::error(Redirect::to("/"), "Description kara ni sinai de ne")
+    // 問題なければInsert処理
+    } else if Record::insert(record, &conn) {
+        Flash::success(Redirect::to("/"), "Successfully added.")
+    } else {
+        Flash::error(Redirect::to("/"), "Could not be inserted due an internal error.")
+    }
+}
 
 // DELETE処理：api/v1/records/<id>
 # [delete("/<id>")]
@@ -160,7 +173,7 @@ fn rocket() -> Rocket {
     .mount("/", routes![api_tasks])
     // .mount("/", routes![api_records])
     // .mount("/", routes![api_records_retrieve_by_id])
-    .mount("/api/v1/records", routes![api_records, api_records_retrieve_by_id, api_records_detele_by_id])
+    .mount("/api/v1/records", routes![api_records, api_records_retrieve_by_id, api_records_detele_by_id,api_records_create])
     .mount("/todo", routes![new, toggle, delete]) //マウント…？
     .attach(Template::fairing())
 }

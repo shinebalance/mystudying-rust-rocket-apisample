@@ -12,4 +12,19 @@ cargo run
 cargo test
 ```
 
+### curl CRUD tests
+```
+# POST
+curl -i -H "Content-Type: application/json" -X POST -d '{"wakeupdatetime":"2021-05-05 07:00:00","condition":5,"description":"POSTdemo","isperiod":false}' http://localhost:8000/api/v1/records
+
+# GET
+curl http://localhost:8000/api/v1/records 
+
+# UPDATE
+
+# DELETE
+
+
+```
+
 # EOF
