@@ -20,7 +20,8 @@ use rocket_contrib::{templates::Template, serve::StaticFiles};//静的ファイ�
 use diesel::SqliteConnection;//まぁわかる
 
 use task::{Task, Todo};//同じフォルダから
-use record::{Record,FromFormRecord};//importからuse
+// use record::{Record,FromFormRecord};//importからuse
+use record::{Record};//importからuse
 
 use rocket_contrib::json::Json;//pythonで言うfrom hoge import hoge as hogeかな
 
@@ -124,18 +125,16 @@ fn api_records_retrieve_by_id(id: i32, conn: DbConn) -> Option<Json<Vec<Record>>
     }
 }
 
-// TODO：CREATE処理：api/v1/records/
-# [post("/", format = "json", data = "<recieced>")]
-fn api_records_create(recieced: Json<Record>, conn: DbConn) -> Flash<Redirect> {
-    let record = recieced.into_inner();//受け取ったrecord_formの中身を渡していると思う
-    // 入力が空の場合
-    if record.description.is_empty() {
-        Flash::error(Redirect::to("/"), "Description kara ni sinai de ne")
-    // 問題なければInsert処理
-    } else if Record::insert(record, &conn) {
-        Flash::success(Redirect::to("/"), "Successfully added.")
+// CREATE処理：api/v1/records/
+# [post("/", format = "json", data = "<json_record>")]
+fn api_records_create(json_record: Json<Record>, conn: DbConn) -> Result<Redirect, ()> {
+    // Jsonで受け取った値を開く
+    let record = json_record.into_inner();
+    // Insert処理の実施
+    if Record::insert(record, &conn) {
+        Ok(Redirect::to("/api/v1/records"))
     } else {
-        Flash::error(Redirect::to("/"), "Could not be inserted due an internal error.")
+        Err(error!("Failed to create a record."))
     }
 }
 
@@ -145,8 +144,6 @@ fn api_records_detele_by_id(id: i32, conn: DbConn) -> Result<Redirect, ()> {
     if Record::delete_with_id(id, &conn) {
         Ok(Redirect::to("/api/v1/records"))
     } else {
-        // Err(Redirect::to("/api/v1/records"))
-        // TODO:エラーレイズ機能の実装
         Err(error!("Failed to delete a record , id: {}", id))
     }
 }

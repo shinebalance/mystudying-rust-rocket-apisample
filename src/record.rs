@@ -19,13 +19,13 @@ use self::schema::records::dsl::{records as all_records};
 
 
 // DRFで言うForm？
-#[derive(FromForm)]
-pub struct FromFormRecord {
-    pub wakeupdatetime: String,
-    pub condition: Option<i32>,
-    pub description: String,
-    pub isperiod: bool
-}
+// #[derive(FromForm)]
+// pub struct FromFormRecord {
+//     pub wakeupdatetime: String,
+//     pub condition: Option<i32>,
+//     pub description: String,
+//     pub isperiod: bool
+// }
 
 // DBへのCRUD処理を行う構造体の定義
 // TODO:Repositoryに移行して、別にEntity構造体を作りたい
@@ -62,7 +62,7 @@ impl Record {
             isperiod: ffrecord.isperiod
             };
         diesel::insert_into(records::table).values(&r).execute(conn).is_ok()
-    }
+    }  
     // TODO：日付で検索してIDを返すGET処理
     // pub fn retrieve_by_id(){}
 
