@@ -7,7 +7,7 @@
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
 
-mod task;
+// mod task;
 mod record;//add
 #[cfg(test)] mod tests;//testsモジュール？
 

@@ -2,7 +2,7 @@ extern crate parking_lot;
 extern crate rand;
 
 use super::record::Record;//追加
-use super::task::Task;
+// use super::task::Task;
 use self::parking_lot::Mutex;
 // use self::rand::{Rng, thread_rng, distributions::Alphanumeric};
 
@@ -22,7 +22,7 @@ macro_rules! run_test {
         let db = super::DbConn::get_one(&rocket);
         let $client = Client::new(rocket).expect("Rocket client");
         let $conn = db.expect("failed to get database connection for testing");
-        assert!(Task::delete_all(&$conn), "failed to delete all tasks for testing");
+        // assert!(Task::delete_all(&$conn), "failed to delete all tasks for testing");
 
         $block
     })
